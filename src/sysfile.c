@@ -16,6 +16,24 @@
 #include "file.h"
 #include "fcntl.h"
 
+
+static char* trace_pathname;
+static int trace_counter;
+static char* strcpy(char *s, const char *t) {
+  char *os;
+
+  os = s;
+  while((*s++ = *t++) != 0)
+    ;
+  return os;
+}
+
+static int strcmp(const char *p, const char *q) {
+  while(*p && *p == *q)
+    p++, q++;
+  return (uchar)*p - (uchar)*q;
+}
+
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -290,6 +308,10 @@ sys_open(void)
   struct file *f;
   struct inode *ip;
 
+  // if the tracer path name is defined and its equal to what we are opening
+  if(trace_pathname && strcmp(trace_pathname, path) == 0)
+      trace_counter++;
+
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
     return -1;
 
@@ -441,4 +463,13 @@ sys_pipe(void)
   fd[0] = fd0;
   fd[1] = fd1;
   return 0;
+}
+
+int trace(const char *pathname) {
+    trace_counter = 0;
+    strcpy(trace_pathname, pathname);
+    return 0;
+}
+int getcount(void) {
+    return trace_counter;
 }
