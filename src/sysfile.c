@@ -465,11 +465,11 @@ sys_pipe(void)
   return 0;
 }
 
-int trace(const char *pathname) {
+int sys_trace(const char *pathname) {
     trace_counter = 0;
     strcpy(trace_pathname, pathname);
     return 0;
 }
-int getcount(void) {
+int sys_getcount(void) {
     return trace_counter;
 }
