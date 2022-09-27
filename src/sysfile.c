@@ -19,6 +19,7 @@
 
 static char* trace_pathname;
 static int trace_counter;
+static int trace_enabled;
 static char* strcpy(char *s, const char *t) {
   char *os;
 
@@ -309,7 +310,7 @@ sys_open(void)
   struct inode *ip;
 
   // if the tracer path name is defined and its equal to what we are opening
-  if(trace_pathname && strcmp(trace_pathname, path) == 0)
+  if(trace_enabled && trace_pathname && strcmp(trace_pathname, path) == 0)
       trace_counter++;
 
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
@@ -465,11 +466,12 @@ sys_pipe(void)
   return 0;
 }
 
-int sys_trace(const char *pathname) {
+int trace(const char *pathname) {
     trace_counter = 0;
+    trace_enabled = 1;
     strcpy(trace_pathname, pathname);
     return 0;
 }
-int sys_getcount(void) {
+int getcount(void) {
     return trace_counter;
 }
