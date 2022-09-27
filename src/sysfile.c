@@ -16,10 +16,11 @@
 #include "file.h"
 #include "fcntl.h"
 
+// max size is 256 bytes
+char trace_pathname[256];
+int trace_counter = 0;
+int trace_enabled = 0;
 
-static char* trace_pathname;
-static int trace_counter;
-static int trace_enabled;
 static char* strcpy(char *s, const char *t) {
   char *os;
 
@@ -309,12 +310,12 @@ sys_open(void)
   struct file *f;
   struct inode *ip;
 
-  // if the tracer path name is defined and its equal to what we are opening
-  if(trace_enabled && trace_pathname && strcmp(trace_pathname, path) == 0)
-      trace_counter++;
-
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
     return -1;
+
+  // if the tracer path name is defined and its equal to what we are opening
+  if((trace_enabled == 1)&& (strcmp(trace_pathname, path) == 0))
+    trace_counter++;
 
   begin_op();
 
@@ -466,12 +467,22 @@ sys_pipe(void)
   return 0;
 }
 
-int trace(const char *pathname) {
+
+int sys_trace(void) {
+    char* pathname;
+    if(argstr(0, &pathname) < 0)
+        return -1;
     trace_counter = 0;
     trace_enabled = 1;
     strcpy(trace_pathname, pathname);
     return 0;
 }
+int sys_getcount(void) {
+    return trace_enabled ? trace_counter : 0;
+}
+int trace(const char* pathname) {
+    return sys_trace();
+}
 int getcount(void) {
-    return trace_counter;
+    return sys_getcount();
 }
