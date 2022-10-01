@@ -18,8 +18,8 @@
 
 // max size is 256 bytes
 char trace_pathname[256];
-int trace_counter = 0;
-int trace_enabled = 0;
+static int trace_counter = 0;
+static int trace_enabled = 0;
 
 static char* strcpy(char *s, const char *t) {
   char *os;
